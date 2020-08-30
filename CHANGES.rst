@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.4 (2020-08-20)
+------------------
+
+- Add patch for Firefox headless to fix login issue
+
 3.0.3 (2018-10-30)
 ------------------
 
