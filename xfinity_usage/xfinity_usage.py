@@ -401,7 +401,7 @@ class XfinityUsage(object):
             profile.set_preference('useAutomationExtension', False)
             profile.update_preferences()
             browser = webdriver.Firefox(firefox_profile=profile,
-                options=options)
+                                        options=options)
         elif self.browser_name == 'chrome':
             logger.debug("getting Chrome browser (local)")
             browser = webdriver.Chrome()
@@ -604,7 +604,7 @@ def parse_args(argv):
                    default=os.path.realpath('xfinity_usage_cookies.json'),
                    help='File to save cookies in')
     browsers = ['phantomjs', 'firefox', 'firefox-headless', 'chrome',
-        'chrome-headless']
+                'chrome-headless']
     p.add_argument('-b', '--browser', dest='browser_name', type=str,
                    default='phantomjs', choices=browsers,
                    help='Browser name/type to use')
