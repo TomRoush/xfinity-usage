@@ -82,7 +82,7 @@ class XfinityUsage(object):
     JSON_URL = 'https://customer.xfinity.com/apis/services/internet/usage'
 
     def __init__(self, username, password, debug=False,
-                 cookie_file='cookies.json', browser_name='phantomjs'):
+                 cookie_file='cookies.json', browser_name='firefox-headless'):
         """
         Initialize class.
 
@@ -387,12 +387,21 @@ class XfinityUsage(object):
 
     def get_browser(self):
         """get a webdriver browser instance """
-        if self.browser_name == 'firefox':
+        if 'firefox' in self.browser_name:
             logger.debug("getting Firefox browser (local)")
             if 'DISPLAY' not in os.environ:
                 logger.debug("exporting DISPLAY=:0")
                 os.environ['DISPLAY'] = ":0"
-            browser = webdriver.Firefox()
+            if 'headless' in self.browser_name:
+                os.environ['MOZ_HEADLESS'] = "1"
+            options = webdriver.FirefoxOptions()
+            profile = webdriver.FirefoxProfile()
+            profile.set_preference('devtools.jsonview.enabled', False)
+            profile.set_preference("dom.webdriver.enabled", False)
+            profile.set_preference('useAutomationExtension', False)
+            profile.update_preferences()
+            browser = webdriver.Firefox(firefox_profile=profile,
+                                        options=options)
         elif self.browser_name == 'chrome':
             logger.debug("getting Chrome browser (local)")
             browser = webdriver.Chrome()
@@ -400,7 +409,7 @@ class XfinityUsage(object):
             logger.debug('getting Chrome browser (local) with --headless')
             chrome_options = Options()
             chrome_options.add_argument("--headless")
-            browser = webdriver.Chrome(chrome_options=chrome_options)
+            browser = webdriver.Chrome(options=chrome_options)
         elif self.browser_name == 'phantomjs':
             logger.debug("getting PhantomJS browser (local)")
             dcap = dict(DesiredCapabilities.PHANTOMJS)
@@ -594,7 +603,8 @@ def parse_args(argv):
                    type=str,
                    default=os.path.realpath('xfinity_usage_cookies.json'),
                    help='File to save cookies in')
-    browsers = ['phantomjs', 'firefox', 'chrome', 'chrome-headless']
+    browsers = ['phantomjs', 'firefox', 'firefox-headless', 'chrome',
+                'chrome-headless']
     p.add_argument('-b', '--browser', dest='browser_name', type=str,
                    default='phantomjs', choices=browsers,
                    help='Browser name/type to use')
